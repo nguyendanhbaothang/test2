@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lophoc;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,12 +14,85 @@ class LophocController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $lophoc = Lophoc::orderBy('id', 'DESC')->get();
-        
+
+        $students = DB::table('students')
+            ->join('student_class', 'students.id', '=', 'student_class.student_id')
+            ->join('lophoc', 'student_class.lophoc_id', '=', 'lophoc.id')
+            ->select('students.name', 'lophoc.classname as class_name')
+            ->orderBy('class_name')
+            ->get();
+        $danhsach = DB::table('students')
+                ->join('student_class', 'students.id', '=', 'student_class.student_id')
+                ->select('students.name')
+                ->groupBy('students.name')
+                ->havingRaw('COUNT(*) > 1')
+                ->get();
+        $hanoi = DB::table('students')
+                ->join('student_class', 'students.id', '=', 'student_class.student_id')
+                ->join('lophoc', 'student_class.lophoc_id', '=', 'lophoc.id')
+                ->where('students.address', '<>', 'Hà Nội')
+                ->where('lophoc.teacher', '=', 'An')
+                ->select('students.*')
+                ->get();
+        $classes = DB::table('lophoc')
+                ->select('lophoc.classname', DB::raw('COUNT(students.id) as count_male_students'))
+                ->join('student_class', 'lophoc.id', '=', 'student_class.lophoc_id')
+                ->join('students', 'student_class.student_id', '=', 'students.id')
+                ->where('students.gender', '=', 'Male')
+                ->where('students.address', '=', 'Hanoi')
+                ->groupBy('lophoc.id', 'lophoc.classname')
+                ->having('count_male_students', '>', 2)
+                ->get();
+
+
+
+
+                $class1 = Lophoc::findOrFail($request->class1);
+                $class2 = Lophoc::findOrFail($request->class2);
+
+                // Tạo lớp mới
+                $mergedClass = new Lophoc();
+                $mergedClass->classname = $class1->classname . $class2->classname;
+                $mergedClass->teacher = $class1->teacher;
+
+                // Lưu lớp mới vào CSDL
+                $mergedClass->save();
+
+                // Lấy danh sách sinh viên đăng ký hai lớp cũ
+                $students1 = $class1->students()->get();
+                $students2 = $class2->students()->get();
+
+                // Gộp danh sách sinh viên
+                $mergedStudents = $students1->merge($students2)->unique('id');
+
+                // Cập nhật thông tin lớp mới cho từng sinh viên
+                foreach ($mergedStudents as $student) {
+                    $student->student_class()->detach($class1->id);
+                    $student->student_class()->detach($class2->id);
+                    $student->student_class()->attach($mergedClass->id);
+                }
+
+                // Xóa hai lớp cũ
+                $class1->delete();
+                $class2->delete();
+
+                // Trả về danh sách sinh viên của lớp mới
+                return view('lophoc.index', ['students' => $mergedStudents]);
+
+
+
+
+
+
         $param = [
             'lophoc'=> $lophoc,
+            'students'=> $students,
+            'danhsach'=> $danhsach,
+            'hanoi'=> $hanoi,
+            'classes'=> $classes,
         ];
         return view('lophoc.index', $param );
     }

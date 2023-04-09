@@ -13,14 +13,14 @@
             @csrf
            <div class="col-12">
              <label class="form-label">Tên lớp</label>
-             <input type="text" class="form-control"  name="classname" placeholder="Tên học sinh">
+             <input type="text" class="form-control"  name="classname" placeholder="Tên lớp">
            </div>
            <div class="col-12">
              <label class="form-label">Tên giáo viên</label>
              <input type="text" class="form-control"  name="teacher" placeholder="Tên giáo viên">
            </div>
            <div class="col-12">
-             <button class="btn btn-primary px-4">Thêm học sinh</button>
+             <button class="btn btn-primary px-4">Thêm lớp</button>
             <a class="btn btn-primary px-4" href="{{ route('lophoc.index') }}" class="w3-button w3-red">Quay lại</a>
            </div>
          </form>
