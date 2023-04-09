@@ -142,7 +142,7 @@
 
 
 
-
+{{-- 
 
 <!DOCTYPE html>
 <html>
@@ -157,4 +157,4 @@
             @endforeach
         </ul>
     </body>
-</html>
+</html> --}}

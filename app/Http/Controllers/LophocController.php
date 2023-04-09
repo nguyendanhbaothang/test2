@@ -50,42 +50,6 @@ class LophocController extends Controller
 
 
 
-                $class1 = Lophoc::findOrFail($request->class1);
-                $class2 = Lophoc::findOrFail($request->class2);
-
-                // Tạo lớp mới
-                $mergedClass = new Lophoc();
-                $mergedClass->classname = $class1->classname . $class2->classname;
-                $mergedClass->teacher = $class1->teacher;
-
-                // Lưu lớp mới vào CSDL
-                $mergedClass->save();
-
-                // Lấy danh sách sinh viên đăng ký hai lớp cũ
-                $students1 = $class1->students()->get();
-                $students2 = $class2->students()->get();
-
-                // Gộp danh sách sinh viên
-                $mergedStudents = $students1->merge($students2)->unique('id');
-
-                // Cập nhật thông tin lớp mới cho từng sinh viên
-                foreach ($mergedStudents as $student) {
-                    $student->student_class()->detach($class1->id);
-                    $student->student_class()->detach($class2->id);
-                    $student->student_class()->attach($mergedClass->id);
-                }
-
-                // Xóa hai lớp cũ
-                $class1->delete();
-                $class2->delete();
-
-                // Trả về danh sách sinh viên của lớp mới
-                return view('lophoc.index', ['students' => $mergedStudents]);
-
-
-
-
-
 
         $param = [
             'lophoc'=> $lophoc,
@@ -193,4 +157,45 @@ class LophocController extends Controller
             return redirect()->route('lophoc.index');
         }
     }
+    public function them(){
+        $classrooms = Lophoc::all();
+        return view('lophoc.bb',compact('classrooms'));
+    }
+    public function mergeClasses(Request $request)
+    {
+        $class1 = Lophoc::findOrFail($request->class1);
+        $class2 = Lophoc::findOrFail($request->class2);
+
+        // Tạo lớp mới
+        $mergedClass = new Lophoc();
+        $mergedClass->classname = $class1->classname . $class2->classname;
+        $mergedClass->teacher = $class1->teacher;
+        $mergedClass->save();
+
+        // Lấy danh sách sinh viên của hai lớp học cũ
+        $students1 = $class1->students()->get();
+        $students2 = $class2->students()->get();
+
+        // Gộp danh sách sinh viên và xóa các bản ghi trùng lặp
+        $mergedStudents = $students1->merge($students2)->unique();
+
+        // Cập nhật thông tin lớp mới cho từng sinh viên
+        foreach ($mergedStudents as $student) {
+            $student->lopHoc()->attach($mergedClass->id);
+        }
+
+        $class1->students()->detach();
+        $class2->students()->detach();
+        $class1->delete();
+        $class2->delete();
+        // Trả về view để hiển thị danh sách sinh viên của lớp mới
+        return view('lophoc.dd', ['students' => $mergedStudents]);
+    }
+public function showClasses(){
+    $classes = Lophoc::whereHas('students', function ($query) {
+        $query->where('gender', 'Nam')->where('address', 'Hà Nội');
+    }, '>=', 1)->get();
+    return view('lophoc.hichaocau',compact('classes'));
+}
+
 }

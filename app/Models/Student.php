@@ -8,8 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     use HasFactory;
-    public function Lophoc()
+
+
+    public function lophoc()
     {
-        return $this->belongsToMany(Lophoc::class);
+        return $this->belongsToMany(Lophoc::class, 'student_class', 'student_id', 'lophoc_id');
     }
 }

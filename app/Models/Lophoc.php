@@ -9,8 +9,9 @@ class Lophoc extends Model
 {
     use HasFactory;
     protected $table = 'lophoc';
-    public function student()
+    public function students()
     {
-        return $this->belongsToMany(Student::class);
+        return $this->belongsToMany(Student::class, 'student_class', 'lophoc_id', 'student_id');
     }
+
 }

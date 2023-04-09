@@ -30,4 +30,8 @@ Route::group(['prefix' => 'lophoc'], function () {
     Route::get('/edit/{id}', [LophocController::class, 'edit'])->name('lophoc.edit');
     Route::put('/update/{id}', [LophocController::class, 'update'])->name('lophoc.update');
     Route::delete('/destroy/{id}', [LophocController::class, 'destroy'])->name('lophoc.destroy');
+    Route::get('/mot', [LophocController::class, 'them'])->name('lophoc.them');
+
+    Route::post('/merge-classes', [LophocController::class, 'mergeClasses'])->name('classrooms.merge');
+    Route::get('/classes', [LophocController::class, 'showClasses']);
 });
