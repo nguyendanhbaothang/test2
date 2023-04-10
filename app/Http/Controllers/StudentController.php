@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Carbon\Carbon;
 class StudentController extends Controller
 {
     /**
@@ -21,8 +21,10 @@ class StudentController extends Controller
                 ->select('id', 'name', 'dateofbirth', 'gender', 'address','literaryscore','mathscores', DB::raw('(literaryscore + mathscores)/2 as avg_score'))
                 ->get();
 
-         $age= DB::table('students')
-                ->where('dateofbirth', '>=', 25)
+        $newDateTime = Carbon::now()->subYears(25);
+        $age= DB::table('students')
+        ->select()
+                ->whereDate('dateofbirth', '<=', $newDateTime)
                 ->where('address', '<>', 'Hà Nội')
                 ->get(); 
 

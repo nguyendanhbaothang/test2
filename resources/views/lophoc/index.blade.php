@@ -141,20 +141,3 @@
 
 
 
-
-{{-- 
-
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Danh sách sinh viên lớp mới</title>
-    </head>
-    <body>
-        <h1>Danh sách sinh viên lớp mới</h1>
-        <ul>
-            @foreach ($students as $student)
-                <li>{{ $student->name }}</li>
-            @endforeach
-        </ul>
-    </body>
-</html> --}}
